@@ -6,26 +6,36 @@ public class Order {
     private Provider provider;
     private Collector collector;
     private Date orderDate;
-    private List<FoodItem> orderedItems; // Add a list of ordered items
+    private List<FoodItem> orderedItems; // Items that were ordered
+    private List<FoodItem> requestedItems; // Items that were requested
 
-    public Order(int orderId, Provider provider, Collector collector, Date orderDate, List<FoodItem> orderedItems) {
+    public Order(int orderId, Provider provider, Collector collector, Date orderDate, List<FoodItem> orderedItems, List<FoodItem> requestedItems) {
         this.orderId = orderId;
         this.provider = provider;
         this.collector = collector;
         this.orderDate = orderDate;
         this.orderedItems = orderedItems;
+        this.requestedItems = requestedItems;
     }
 
     public Provider getProvider() {
-        return provider; // Add getter method
+        return provider;
     }
 
     public Collector getCollector() {
-        return collector; // Add getter method
+        return collector;
     }
 
     public Date getOrderDate() {
-        return orderDate; // Add getter method
+        return orderDate;
+    }
+
+    public List<FoodItem> getOrderedItems() {
+        return orderedItems; // Return ordered items
+    }
+
+    public List<FoodItem> getRequestedItems() {
+        return requestedItems; // Return requested items
     }
 
     @Override

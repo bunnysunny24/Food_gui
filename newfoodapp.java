@@ -1,23 +1,32 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate; // Import for LocalDate
 import java.util.List;
-
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class newfoodapp {
     private static UserAuthenticationSystem authSystem = new UserAuthenticationSystem();
-    private static CollectorPortal collectorPortal = new CollectorPortal();
+    private static CollectorPortal collectorPortal;
     private static OrderManagementSystem orderSystem = new OrderManagementSystem();
 
     private static JFrame mainFrame;
 
     public static void main(String[] args) {
+        // Initialize systems and sample data
+        collectorPortal = new CollectorPortal(orderSystem);
         initializeSampleData();
         showLoginForm();
     }
 
-    private static void showLoginForm() {
+    public static void showLoginForm() {
         mainFrame = new JFrame("Food Waste Reduction System - Login");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(400, 300);
@@ -128,7 +137,7 @@ public class newfoodapp {
         requestFrame.setLayout(new GridLayout(3, 1));
 
         JTextArea providersArea = new JTextArea();
-        for (Provider provider : collectorPortal.getProviders()) {
+        for (Provider provider : collectorPortal.getProviders()) { // Should work now
             providersArea.append(provider.getName() + "\n");
         }
 
@@ -136,8 +145,13 @@ public class newfoodapp {
 
         JButton sendRequestButton = new JButton("Send Request");
         sendRequestButton.addActionListener(e -> {
-            // Handle request sending logic here
-            JOptionPane.showMessageDialog(requestFrame, "Food request sent!");
+            String providerId = providerIdField.getText();
+            boolean success = collectorPortal.requestItem(providerId, collector); // Should work now
+            if (success) {
+                JOptionPane.showMessageDialog(requestFrame, "Food request sent!");
+            } else {
+                JOptionPane.showMessageDialog(requestFrame, "Failed to send request. Check provider ID.");
+            }
         });
 
         requestFrame.add(new JScrollPane(providersArea));
@@ -176,12 +190,20 @@ public class newfoodapp {
 
         addItemButton.addActionListener(e -> {
             String name = nameField.getText();
-            double quantity = Double.parseDouble(quantityField.getText());
-            String unit = unitField.getText();
-            FoodItem item = new FoodItem(name, quantity, unit);
-            provider.addWastedItem(item);
-            JOptionPane.showMessageDialog(addItemFrame, "Item added!");
-            addItemFrame.dispose();
+            double quantity;
+            try {
+                quantity = Double.parseDouble(quantityField.getText());
+                String unit = unitField.getText();
+                
+                // Set the date wasted to the current date
+                LocalDate dateWasted = LocalDate.now(); // Current date
+                FoodItem item = new FoodItem(name, quantity, unit, dateWasted); // Create FoodItem with date wasted
+                provider.addWastedItem(item);
+                JOptionPane.showMessageDialog(addItemFrame, "Item added!");
+                addItemFrame.dispose();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(addItemFrame, "Invalid quantity. Please enter a number.");
+            }
         });
 
         addItemFrame.add(nameLabel);
@@ -197,11 +219,16 @@ public class newfoodapp {
     }
 
     private static void viewPendingRequestsGUI(Provider provider) {
-        // Placeholder method for viewing requests
         JFrame requestsFrame = new JFrame("Pending Requests");
         requestsFrame.setSize(400, 300);
         JTextArea requestsArea = new JTextArea();
-        // Add logic to fetch and display pending requests
+
+        List<String> requests = collectorPortal.getRequests(); // Should work now
+
+        for (String request : requests) {
+            requestsArea.append(request + "\n");
+        }
+
         requestsFrame.add(new JScrollPane(requestsArea));
         requestsFrame.setVisible(true);
     }
@@ -209,7 +236,7 @@ public class newfoodapp {
     private static void initializeSampleData() {
         // Sample data initialization
         Collector collector = new Collector("collector1", "pass123", "John Doe");
-        Provider provider = new Provider("provider1", "pass456", "Food Supplier A");
+        Provider provider = new Provider("provider1", "pass456", "provider", "henry"); // Corrected provider creation
         authSystem.addUser(collector);
         authSystem.addUser(provider);
     }
