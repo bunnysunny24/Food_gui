@@ -1,0 +1,5 @@
+{
+    "java.project.referencedLibraries": [
+        "D:/Bunny/Documents/openjfx-23_windows-x64_bin-sdk/javafx-sdk-23/lib/*.jar"
+    ]
+}
