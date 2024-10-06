@@ -20,4 +20,20 @@ public class DatabaseConnection {
         // Create and return the connection
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
+
+    // Method to test the connection
+    public static boolean testConnection() {
+        try (Connection connection = getConnection()) {
+            if (connection != null) {
+                System.out.println("Connection to the database established successfully!");
+                return true; // Connection successful
+            } else {
+                System.out.println("Failed to establish a connection to the database.");
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Exception occurred while testing connection:");
+            e.printStackTrace();
+        }
+        return false; // Connection failed
+    }
 }

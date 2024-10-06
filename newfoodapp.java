@@ -1,9 +1,8 @@
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.time.LocalDate; // Import for LocalDate
+import java.time.LocalDate;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,46 +29,112 @@ public class newfoodapp {
         mainFrame = new JFrame("Food Waste Reduction System - Login");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setSize(400, 300);
-        mainFrame.setLayout(new GridLayout(5, 2));
+        mainFrame.setLayout(new GridLayout(6, 2));
 
+        // Username field
         JLabel userLabel = new JLabel("Username:");
         JTextField userField = new JTextField();
+
+        // Password field
         JLabel passLabel = new JLabel("Password:");
         JPasswordField passField = new JPasswordField();
-        JLabel roleLabel = new JLabel("Role (collector/provider):");
-        JTextField roleField = new JTextField();
+
+        // Role selection field (changed to JComboBox)
+        JLabel roleLabel = new JLabel("Role:");
+        String[] roles = {"Collector", "Provider"}; // Options for the dropdown
+        JComboBox<String> roleComboBox = new JComboBox<>(roles); // Create JComboBox
+
+        // Login button
         JButton loginButton = new JButton("Login");
 
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = userField.getText();
-                String password = new String(passField.getPassword());
-                String role = roleField.getText().toLowerCase();
-                User user = authSystem.authenticate(username, password, role);
-                if (user != null) {
-                    mainFrame.dispose();
-                    if (user instanceof Collector) {
-                        showCollectorMenu((Collector) user);
-                    } else if (user instanceof Provider) {
-                        showProviderMenu((Provider) user);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(mainFrame, "Login failed. Please try again.");
+        // Register button
+        JButton registerButton = new JButton("Register");
+
+        // Login button action
+        loginButton.addActionListener(e -> {
+            String username = userField.getText();
+            String password = new String(passField.getPassword());
+            String role = roleComboBox.getSelectedItem().toString().toLowerCase(); // Get selected role
+            User user = authSystem.authenticate(username, password, role);
+            if (user != null) {
+                mainFrame.dispose();
+                if (user instanceof Collector) {
+                    showCollectorMenu((Collector) user);
+                } else if (user instanceof Provider) {
+                    showProviderMenu((Provider) user);
                 }
+            } else {
+                JOptionPane.showMessageDialog(mainFrame, "Login failed. Please try again.");
             }
         });
+
+        // Register button action
+        registerButton.addActionListener(e -> showRegistrationForm());
 
         mainFrame.add(userLabel);
         mainFrame.add(userField);
         mainFrame.add(passLabel);
         mainFrame.add(passField);
         mainFrame.add(roleLabel);
-        mainFrame.add(roleField);
+        mainFrame.add(roleComboBox); // Add the JComboBox for role selection
         mainFrame.add(new JLabel("")); // Empty placeholder
         mainFrame.add(loginButton);
+        mainFrame.add(registerButton); // Add the register button
 
         mainFrame.setVisible(true);
+    }
+
+    private static void showRegistrationForm() {
+        JFrame registrationFrame = new JFrame("Register User");
+        registrationFrame.setSize(400, 300);
+        registrationFrame.setLayout(new GridLayout(6, 2));
+
+        JLabel userLabel = new JLabel("Username:");
+        JTextField userField = new JTextField();
+        JLabel passLabel = new JLabel("Password:");
+        JPasswordField passField = new JPasswordField();
+        JLabel roleLabel = new JLabel("Role:"); // Change to just "Role:"
+        String[] roles = {"Collector", "Provider"}; // Options for the dropdown
+        JComboBox<String> roleComboBox = new JComboBox<>(roles); // Create JComboBox for roles
+        JLabel nameLabel = new JLabel("Name:");
+        JTextField nameField = new JTextField();
+        JButton registerButton = new JButton("Create Account");
+
+        registerButton.addActionListener(e -> {
+            String username = userField.getText();
+            String password = new String(passField.getPassword());
+            String role = roleComboBox.getSelectedItem().toString().toLowerCase(); // Get selected role
+            String name = nameField.getText();
+
+            // Create user based on role
+            User newUser = null;
+            if (role.equals("collector")) {
+                newUser = new Collector(username, password, name);
+            } else if (role.equals("provider")) {
+                String providerId = JOptionPane.showInputDialog("Enter Provider ID:"); // Prompt for provider ID
+                newUser = new Provider(username, password, name, providerId);
+            }
+
+            if (newUser != null && authSystem.addUser(newUser)) {
+                JOptionPane.showMessageDialog(registrationFrame, "Account created successfully!");
+                registrationFrame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(registrationFrame, "Failed to create account. Username may already exist.");
+            }
+        });
+
+        registrationFrame.add(userLabel);
+        registrationFrame.add(userField);
+        registrationFrame.add(passLabel);
+        registrationFrame.add(passField);
+        registrationFrame.add(roleLabel);
+        registrationFrame.add(roleComboBox); // Add JComboBox for role selection
+        registrationFrame.add(nameLabel);
+        registrationFrame.add(nameField);
+        registrationFrame.add(new JLabel("")); // Empty placeholder
+        registrationFrame.add(registerButton);
+
+        registrationFrame.setVisible(true);
     }
 
     private static void showCollectorMenu(Collector collector) {
@@ -184,26 +249,18 @@ public class newfoodapp {
         JTextField nameField = new JTextField();
         JLabel quantityLabel = new JLabel("Quantity:");
         JTextField quantityField = new JTextField();
-        JLabel unitLabel = new JLabel("Unit:");
+        JLabel unitLabel = new JLabel("Unit (e.g., kg, loaves):");
         JTextField unitField = new JTextField();
-        JButton addItemButton = new JButton("Add Item");
 
+        JButton addItemButton = new JButton("Add Item");
         addItemButton.addActionListener(e -> {
-            String name = nameField.getText();
-            double quantity;
-            try {
-                quantity = Double.parseDouble(quantityField.getText());
-                String unit = unitField.getText();
-                
-                // Set the date wasted to the current date
-                LocalDate dateWasted = LocalDate.now(); // Current date
-                FoodItem item = new FoodItem(name, quantity, unit, dateWasted); // Create FoodItem with date wasted
-                provider.addWastedItem(item);
-                JOptionPane.showMessageDialog(addItemFrame, "Item added!");
-                addItemFrame.dispose();
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(addItemFrame, "Invalid quantity. Please enter a number.");
-            }
+            String itemName = nameField.getText();
+            int quantity = Integer.parseInt(quantityField.getText());
+            String unit = unitField.getText();
+            FoodItem item = new FoodItem(itemName, quantity, unit, LocalDate.now());
+            provider.addWastedItem(item);
+            JOptionPane.showMessageDialog(addItemFrame, "Item added!");
+            addItemFrame.dispose();
         });
 
         addItemFrame.add(nameLabel);
@@ -212,7 +269,7 @@ public class newfoodapp {
         addItemFrame.add(quantityField);
         addItemFrame.add(unitLabel);
         addItemFrame.add(unitField);
-        addItemFrame.add(new JLabel("")); // Placeholder
+        addItemFrame.add(new JLabel("")); // Empty placeholder
         addItemFrame.add(addItemButton);
 
         addItemFrame.setVisible(true);
@@ -222,11 +279,10 @@ public class newfoodapp {
         JFrame requestsFrame = new JFrame("Pending Requests");
         requestsFrame.setSize(400, 300);
         JTextArea requestsArea = new JTextArea();
+        List<Order> requests = orderSystem.getPendingRequestsForProvider(provider);
 
-        List<String> requests = collectorPortal.getRequests(); // Should work now
-
-        for (String request : requests) {
-            requestsArea.append(request + "\n");
+        for (Order request : requests) {
+            requestsArea.append(request.toString() + "\n");
         }
 
         requestsFrame.add(new JScrollPane(requestsArea));
@@ -234,10 +290,13 @@ public class newfoodapp {
     }
 
     private static void initializeSampleData() {
-        // Sample data initialization
-        Collector collector = new Collector("collector1", "pass123", "John Doe");
-        Provider provider = new Provider("provider1", "pass456", "provider", "henry"); // Corrected provider creation
-        authSystem.addUser(collector);
-        authSystem.addUser(provider);
+        Provider provider1 = new Provider("provider1", "password", "Provider One", "P001");
+        Provider provider2 = new Provider("provider2", "password", "Provider Two", "P002");
+
+        authSystem.addUser(provider1);
+        authSystem.addUser(provider2);
+
+        provider1.addWastedItem(new FoodItem("Apple", 50, "kg", LocalDate.now()));
+        provider2.addWastedItem(new FoodItem("Bread", 30, "loaves", LocalDate.now()));
     }
 }

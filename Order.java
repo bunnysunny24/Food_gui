@@ -8,7 +8,9 @@ public class Order {
     private Date orderDate;
     private List<FoodItem> orderedItems; // Items that were ordered
     private List<FoodItem> requestedItems; // Items that were requested
+    private String status; // New field for order status
 
+    // Constructor
     public Order(int orderId, Provider provider, Collector collector, Date orderDate, List<FoodItem> orderedItems, List<FoodItem> requestedItems) {
         this.orderId = orderId;
         this.provider = provider;
@@ -16,8 +18,10 @@ public class Order {
         this.orderDate = orderDate;
         this.orderedItems = orderedItems;
         this.requestedItems = requestedItems;
+        this.status = "Pending"; // Default status
     }
 
+    // Getters
     public Provider getProvider() {
         return provider;
     }
@@ -38,8 +42,20 @@ public class Order {
         return requestedItems; // Return requested items
     }
 
+    public String getStatus() {
+        return status; // Getter for status
+    }
+
+    public void setStatus(String status) {
+        this.status = status; // Setter for status (optional, if you need to update it)
+    }
+
     @Override
     public String toString() {
-        return "Order ID: " + orderId + ", Provider: " + provider.getName() + ", Collector: " + collector.getUsername() + ", Date: " + orderDate;
+        return "Order ID: " + orderId +
+               ", Provider: " + provider.getName() +
+               ", Collector: " + collector.getUsername() +
+               ", Date: " + orderDate +
+               ", Status: " + status; // Include status in the string representation
     }
 }

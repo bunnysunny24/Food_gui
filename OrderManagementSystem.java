@@ -19,7 +19,7 @@ public class OrderManagementSystem {
     public List<Order> getPendingOrdersForProvider(Provider provider) {
         List<Order> providerOrders = new ArrayList<>();
         for (Order order : orders) {
-            if (order.getProvider().equals(provider)) {
+            if (order.getProvider().equals(provider) && order.getStatus().equalsIgnoreCase("Pending")) {
                 providerOrders.add(order);
             }
         }
@@ -48,6 +48,18 @@ public class OrderManagementSystem {
             }
         }
         System.out.println("No orders found for collector " + collector.getUsername());
+    }
+
+    // New method to get pending requests for a specific provider
+    public List<Order> getPendingRequestsForProvider(Provider provider) {
+        List<Order> pendingRequests = new ArrayList<>();
+        for (Order order : orders) {
+            // Check if the order is associated with the provider and if it's still pending
+            if (order.getProvider().equals(provider) && order.getStatus().equalsIgnoreCase("Pending")) {
+                pendingRequests.add(order);
+            }
+        }
+        return pendingRequests;
     }
 
     // Additional methods can be added as needed for managing orders and requests
