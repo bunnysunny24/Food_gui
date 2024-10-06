@@ -2,7 +2,7 @@ import java.time.LocalDate;
 
 public class FoodItem {
     private String name;
-    private double quantity;
+    private double quantity; // Changed to double for consistency with potential waste scenarios
     private String unit;
     private LocalDate dateWasted; // Field to store the date when the item was wasted
 

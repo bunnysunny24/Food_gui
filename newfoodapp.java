@@ -1,5 +1,6 @@
 import java.awt.GridLayout;
 import java.time.LocalDate;
+import java.util.ArrayList; // Import ArrayList
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -20,7 +21,8 @@ public class newfoodapp {
 
     public static void main(String[] args) {
         // Initialize systems and sample data
-        collectorPortal = new CollectorPortal(orderSystem);
+        List<Provider> providers = new ArrayList<>(); // Initialize your list of providers
+        collectorPortal = new CollectorPortal(orderSystem, providers); // Updated constructor call
         initializeSampleData();
         showLoginForm();
     }
@@ -145,7 +147,7 @@ public class newfoodapp {
 
         JButton viewProvidersButton = new JButton("View Nearby Providers");
         JButton sendRequestButton = new JButton("Send Food Request");
-        JButton viewOrdersButton = new JButton("View My Orders");
+        JButton viewOrdersButton = new JButton("Check Wasted Things"); // Renamed
         JButton logoutButton = new JButton("Logout");
 
         viewProvidersButton.addActionListener(e -> new Thread(() -> MapViewer.main(new String[]{})).start());
@@ -245,32 +247,32 @@ public class newfoodapp {
         addItemFrame.setSize(400, 300);
         addItemFrame.setLayout(new GridLayout(4, 2));
 
-        JLabel nameLabel = new JLabel("Item Name:");
-        JTextField nameField = new JTextField();
+        JLabel itemNameLabel = new JLabel("Item Name:");
+        JTextField itemNameField = new JTextField();
         JLabel quantityLabel = new JLabel("Quantity:");
         JTextField quantityField = new JTextField();
-        JLabel unitLabel = new JLabel("Unit (e.g., kg, loaves):");
-        JTextField unitField = new JTextField();
+        JLabel dateLabel = new JLabel("Date Wasted (YYYY-MM-DD):");
+        JTextField dateField = new JTextField();
 
-        JButton addItemButton = new JButton("Add Item");
-        addItemButton.addActionListener(e -> {
-            String itemName = nameField.getText();
+        JButton addButton = new JButton("Add Wasted Item");
+        addButton.addActionListener(e -> {
+            String itemName = itemNameField.getText();
             int quantity = Integer.parseInt(quantityField.getText());
-            String unit = unitField.getText();
-            FoodItem item = new FoodItem(itemName, quantity, unit, LocalDate.now());
-            provider.addWastedItem(item);
-            JOptionPane.showMessageDialog(addItemFrame, "Item added!");
+            LocalDate dateWasted = LocalDate.parse(dateField.getText()); // Use LocalDate
+            WastedItem wastedItem = new WastedItem(itemName, quantity, dateWasted);
+            provider.addWastedItem(wastedItem);
+            JOptionPane.showMessageDialog(addItemFrame, "Wasted item added successfully!");
             addItemFrame.dispose();
         });
 
-        addItemFrame.add(nameLabel);
-        addItemFrame.add(nameField);
+        addItemFrame.add(itemNameLabel);
+        addItemFrame.add(itemNameField);
         addItemFrame.add(quantityLabel);
         addItemFrame.add(quantityField);
-        addItemFrame.add(unitLabel);
-        addItemFrame.add(unitField);
-        addItemFrame.add(new JLabel("")); // Empty placeholder
-        addItemFrame.add(addItemButton);
+        addItemFrame.add(dateLabel);
+        addItemFrame.add(dateField);
+        addItemFrame.add(new JLabel()); // Empty placeholder
+        addItemFrame.add(addButton);
 
         addItemFrame.setVisible(true);
     }
@@ -279,9 +281,9 @@ public class newfoodapp {
         JFrame requestsFrame = new JFrame("Pending Requests");
         requestsFrame.setSize(400, 300);
         JTextArea requestsArea = new JTextArea();
-        List<Order> requests = orderSystem.getPendingRequestsForProvider(provider);
 
-        for (Order request : requests) {
+        List<Order> pendingRequests = orderSystem.getPendingRequestsForProvider(provider);
+        for (Order request : pendingRequests) {
             requestsArea.append(request.toString() + "\n");
         }
 
@@ -290,13 +292,10 @@ public class newfoodapp {
     }
 
     private static void initializeSampleData() {
-        Provider provider1 = new Provider("provider1", "password", "Provider One", "P001");
-        Provider provider2 = new Provider("provider2", "password", "Provider Two", "P002");
-
-        authSystem.addUser(provider1);
-        authSystem.addUser(provider2);
-
-        provider1.addWastedItem(new FoodItem("Apple", 50, "kg", LocalDate.now()));
-        provider2.addWastedItem(new FoodItem("Bread", 30, "loaves", LocalDate.now()));
+        // Create sample data for testing purposes
+        Collector collector = new Collector("collector1", "password1", "Alice");
+        Provider provider = new Provider("provider1", "password2", "Provider One", "P001");
+        authSystem.addUser(collector);
+        authSystem.addUser(provider);
     }
 }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Provider extends User {
-    private List<FoodItem> wastedItems = new ArrayList<>(); // List of wasted food items
+    private List<WastedItem> wastedItems = new ArrayList<>(); // List of wasted food items
     private String providerId; // Field for provider ID
 
     // Constructor
@@ -27,10 +27,15 @@ public class Provider extends User {
     }
 
     // Method to add a wasted item
-    public void addWastedItem(FoodItem item) {
+    public void addWastedItem(WastedItem item) {
         if (item == null || item.getName() == null || item.getDateWasted() == null) {
             System.out.println("Cannot add wasted item: Invalid item data.");
             return; // Exit if the item data is invalid
+        }
+
+        if (item.getQuantity() <= 0) { // Check for valid quantity
+            System.out.println("Cannot add wasted item: Quantity must be a positive number.");
+            return; // Exit if the quantity is invalid
         }
 
         this.wastedItems.add(item); // Add the item to the list
@@ -42,12 +47,12 @@ public class Provider extends User {
     }
 
     // Getter for wasted items
-    public List<FoodItem> getWastedItems() {
+    public List<WastedItem> getWastedItems() {
         return new ArrayList<>(this.wastedItems); // Return a copy to prevent modification
     }
 
     // Method to save wasted item to the database
-    private boolean saveWastedItemToDatabase(FoodItem item) {
+    private boolean saveWastedItemToDatabase(WastedItem item) {
         String sql = "INSERT INTO wasted_items (provider_username, food_item_name, quantity, date_wasted) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = DatabaseConnection.getConnection();
@@ -56,7 +61,7 @@ public class Provider extends User {
             // Set parameters for the SQL statement
             statement.setString(1, this.getUsername()); // Use the provider's username
             statement.setString(2, item.getName());
-            statement.setDouble(3, item.getQuantity());
+            statement.setDouble(3, item.getQuantity()); // Use double for quantity
             statement.setDate(4, Date.valueOf(item.getDateWasted())); // Convert LocalDate to SQL Date
 
             int rowsInserted = statement.executeUpdate();
