@@ -5,15 +5,15 @@ public class Collector extends User {
     private List<FoodItem> collectedItems;
 
     public Collector(String username, String password, String name) {
-        super(username, password, "collector", name); // Pass the name to the User constructor
-        this.collectedItems = new ArrayList<>(); // Initialize the list
+        super(username, password, "collector", name); 
+        this.collectedItems = new ArrayList<>(); 
     }
 
     public void addCollectedItem(FoodItem item) {
-        collectedItems.add(item); // Add item to the list
+        collectedItems.add(item); 
     }
 
     public List<FoodItem> getCollectedItems() {
-        return collectedItems; // Get the list of collected items
+        return collectedItems; 
     }
 }

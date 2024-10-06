@@ -24,13 +24,13 @@ public class ProviderPortal {
             itemsArea.append(item.toString() + "\n");
         }
 
-        JButton requestButton = new JButton("Request Selected Item");
+        JButton requestButton = new JButton("Send Request");
         requestButton.addActionListener(e -> {
-            String selectedItemName = JOptionPane.showInputDialog(itemsFrame, "Enter item name to request:");
+            String selectedItemName = JOptionPane.showInputDialog(itemsFrame, "Enter The ID of Collector");
             requestItem(provider, selectedItemName);
         });
 
-        JButton viewRequestsButton = new JButton("View Requests");
+        JButton viewRequestsButton = new JButton("View Past Requests");
         viewRequestsButton.addActionListener(e -> viewRequests(provider));
 
         itemsFrame.add(new JScrollPane(itemsArea), "Center");
